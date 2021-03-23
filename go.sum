@@ -68,8 +68,8 @@ github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINE
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/qdm12/golibs v0.0.0-20201227203847-2fd99ffdfdba/go.mod h1:pikkTN7g7zRuuAnERwqW1yAFq6pYmxrxpjiwGvb0Ysc=
-github.com/qdm12/golibs v0.0.0-20210215133151-c711ebd3e56a h1:DxO9jvcQDtWgKSzxL95828kQxO6WCocP9PPpmIqGMRs=
-github.com/qdm12/golibs v0.0.0-20210215133151-c711ebd3e56a/go.mod h1:y0qNgur9dTkHK2Bb5tK0UCtYyvEiK08flVIglROmnBg=
+github.com/qdm12/golibs v0.0.0-20210322120454-6f90f86ae3f5 h1:r42AYS9mnf493W2e9+8ubgPjK1qtXwkvj3/lzY+oAAQ=
+github.com/qdm12/golibs v0.0.0-20210322120454-6f90f86ae3f5/go.mod h1:y0qNgur9dTkHK2Bb5tK0UCtYyvEiK08flVIglROmnBg=
 github.com/qdm12/updated v0.0.0-20210102005021-dd457d77f94a h1:gkyP+gMEeBgMgyRYGrVNcoy6cL1065IvXsyfB6xboIc=
 github.com/qdm12/updated v0.0.0-20210102005021-dd457d77f94a/go.mod h1:bbJGxEYCnsA8WU4vBcXYU6mOoHyzdP458FIKP4mfLJM=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
