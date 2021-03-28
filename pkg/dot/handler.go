@@ -2,9 +2,11 @@ package dot
 
 import (
 	"context"
+	"net"
 	"sync"
 
 	"github.com/miekg/dns"
+	"github.com/qdm12/dns/pkg/dnssec"
 	"github.com/qdm12/golibs/logging"
 )
 
@@ -14,7 +16,7 @@ type handler struct {
 	logger logging.Logger
 
 	// Internal objects
-	dial          dialFunc
+	dial          func(ctx context.Context, _, _ string) (net.Conn, error)
 	udpBufferPool *sync.Pool
 	client        *dns.Client
 }
@@ -51,6 +53,8 @@ func (h *handler) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 	}
 	conn := &dns.Conn{Conn: DoTConn}
 
+	dnssec.WithDNSSEC(r)
+
 	response, _, err := h.client.ExchangeWithConn(r, conn)
 
 	if err := conn.Close(); err != nil {
@@ -60,6 +64,37 @@ func (h *handler) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 	if err != nil {
 		h.logger.Warn("cannot exchange over DoT connection: %s", err)
 		_ = w.WriteMsg(new(dns.Msg).SetRcode(r, dns.RcodeServerFailure))
+		return
+	}
+
+	// Extract signature for DNSSEC
+	rrsig, rrset, err := dnssec.ExtractRRSIG(response)
+	if err != nil {
+		h.logger.Warn("cannot extract DNSSEC signature: %s", err)
+		_ = w.WriteMsg(new(dns.Msg).SetRcode(r, dns.RcodeServerFailure))
+		return
+	}
+
+	if rrsig == nil { // not signed with DNSSEC
+		// TODO strict mode
+		if err := w.WriteMsg(response); err != nil {
+			h.logger.Warn("cannot write DNS message back to client: %s", err)
+		}
+		return
+	}
+
+	signerName := rrsig.SignerName
+	chain := dnssec.NewAuthenticationChain(h.client, h.dial)
+	if err := chain.Populate(h.ctx, signerName); err != nil {
+		h.logger.Warn("DNSSEC auth chain populating failed: %s", err)
+		_ = w.WriteMsg(new(dns.Msg).SetRcode(r, dns.RcodeServerFailure))
+		return
+	}
+
+	if err := chain.Verify(rrsig, rrset); err != nil {
+		h.logger.Warn("DNSSEC validation failed: %s", err)
+		_ = w.WriteMsg(new(dns.Msg).SetRcode(r, dns.RcodeServerFailure))
+		// TODO RcodeBadSig
 		return
 	}
 

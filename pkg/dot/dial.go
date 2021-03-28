@@ -7,9 +7,7 @@ import (
 	"strconv"
 )
 
-type dialFunc func(ctx context.Context, _, _ string) (net.Conn, error)
-
-func newDoTDial(settings settings) dialFunc {
+func newDoTDial(settings settings) func(ctx context.Context, _, _ string) (net.Conn, error) {
 	dialer := &net.Dialer{
 		Timeout: settings.timeout,
 	}
