@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/qdm12/dns/pkg/blacklist"
@@ -61,11 +62,13 @@ func getAllowedHostnames(reader *reader) (hostnames []string, err error) {
 	}
 	for _, hostname := range hostnames {
 		if !reader.verifier.MatchHostname(hostname) {
-			return nil, fmt.Errorf("unblocked hostname %q does not seem valid", hostname)
+			return nil, fmt.Errorf("%w: allowed hostname: %s", errHostnameInvalid, hostname)
 		}
 	}
 	return hostnames, nil
 }
+
+var errHostnameInvalid = errors.New("hostname is invalid")
 
 // getBlockedHostnames obtains a list of hostnames to block from the comma
 // separated list for the environment variable BLOCK_HOSTNAMES.
@@ -76,11 +79,13 @@ func getBlockedHostnames(reader *reader) (hostnames []string, err error) {
 	}
 	for _, hostname := range hostnames {
 		if !reader.verifier.MatchHostname(hostname) {
-			return nil, fmt.Errorf("blocked hostname %q does not seem valid", hostname)
+			return nil, fmt.Errorf("%w: blocked hostname: %s", errHostnameInvalid, hostname)
 		}
 	}
 	return hostnames, nil
 }
+
+var errIPStringInvalid = errors.New("IP address string is invalid")
 
 // getBlockedIPs obtains a list of IP addresses to block from
 // the comma separated list for the environment variable BLOCK_IPS.
@@ -94,13 +99,15 @@ func getBlockedIPs(reader *reader) (ips []netaddr.IP, err error) {
 	for _, value := range values {
 		ip, err := netaddr.ParseIP(value)
 		if err != nil {
-			return nil, fmt.Errorf("invalid blocked IP: %s", err)
+			return nil, fmt.Errorf("%w: %s", errIPStringInvalid, err)
 		}
 		ips = append(ips, ip)
 	}
 
 	return ips, nil
 }
+
+var errBlockedIPPrefixInvalid = errors.New("blocked IP prefix CIDR is invalid")
 
 // getBlockedIPPrefixes obtains a list of IP networks (CIDR notation) to block from
 // the comma separated list for the environment variable BLOCK_CIDRS.
@@ -114,7 +121,7 @@ func getBlockedIPPrefixes(reader *reader) (ipPrefixes []netaddr.IPPrefix, err er
 	for _, value := range values {
 		ipPrefix, err := netaddr.ParseIPPrefix(value)
 		if err != nil {
-			return nil, fmt.Errorf("invalid blocked IP network CIDR: %s", err)
+			return nil, fmt.Errorf("%w: %s", errBlockedIPPrefixInvalid, err)
 		}
 		ipPrefixes = append(ipPrefixes, ipPrefix)
 	}

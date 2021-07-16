@@ -27,8 +27,8 @@ import (
 
 var (
 	version   string
-	buildDate string
-	commit    string
+	buildDate string //nolint:gochecknoglobals
+	commit    string //nolint:gochecknoglobals
 )
 
 func main() {
@@ -84,10 +84,7 @@ func _main(ctx context.Context, buildInfo models.BuildInformation,
 		// built-in healthcheck, in an ephemeral fashion to query the
 		// long running instance of the program about its status
 		client := health.NewClient()
-		if err := client.Query(ctx); err != nil {
-			return err
-		}
-		return nil
+		return client.Query(ctx)
 	}
 	fmt.Println(splash.Splash(buildInfo))
 
