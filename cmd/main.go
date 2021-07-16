@@ -11,6 +11,7 @@ import (
 	"time"
 	_ "time/tzdata"
 
+	_ "github.com/breml/rootcerts"
 	"github.com/qdm12/dns/internal/config"
 	"github.com/qdm12/dns/internal/health"
 	"github.com/qdm12/dns/internal/models"
